@@ -1,0 +1,2 @@
+# To fix
+docker run -d --restart=on-failure -e MYSQL_ROOT_PASSWORD=Kerrigan -v hatchery:mysql --name spawning-pool mysql

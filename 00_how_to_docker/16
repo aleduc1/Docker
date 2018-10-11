@@ -1,0 +1,2 @@
+# To fix to check log in realtime
+docker logs spawning-pool

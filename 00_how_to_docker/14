@@ -1,0 +1,2 @@
+# To fix, especially the link part
+docker run -d -p 8080:80 --name lair --link lair:spawning-pool wordpress

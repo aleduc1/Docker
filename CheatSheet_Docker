@@ -1,0 +1,206 @@
+Get Docker :
+~ Overview
+	- Docker available in 2 edition : CE and EE
+	- CE is for everyone community edition
+	- EE is for enterprise and IT teams
+
+~ About docker CE
+	- 3 updates channel
+	- Stable : latest/regular
+	- Test : Testing..
+	- Nightly : WIP for next major release/ Its in favor of CE Edge
+	- Update are available as package on docker.com
+
+~ Docker for mac
+	- Hyperkit replace VB as a native VM system for mac
+	- It doesnt have to stop the machine you has set up on VB with docker-machine, both can coexist (see later)
+
+~ Toolbox
+	- Toolbox does what we do manually at 42, its the other way to set up a docker environnement for mac
+	- It installs :
+		- Docker Engine (+ Docker CLI)
+		- Docker machine
+		- Docker compose
+		- VirtualBox
+		- Kitematic
+	- Docker engine is the docker daemon on your computer
+	But its doesnt run natively except on linux
+	So docker-machine can lauch a VM via VirtualBox preconfigured to boot docker engine on it
+	Then by settings ENV_VARIABLES for docker in your own shell you'll be able to use docker CLI from your terminal to communicate with the docker daemon running on Linux
+
+~ Kitematic
+	- It simplify and does the installation mentionned above for you
+	- It provide an easily understandable GUI interface for average users
+
+
+Get Started :
+~ Overview
+	- Docker enables you to separate your applications from your infrastructure so you can deliver software anywhere quickly
+	- Docker Engine install the Docker Daemon as well as the Docker CLI and the REST API on your environnement
+	- Docker CLI, Docker-machine, Docker-compose and kitematic communicate to the Docker Daemon through the REST API
+	- Docker Daemon interact with the kernel to perform tasks
+	- Docker Daemon manages Docker objects, such as images, containers, networks, and volumes.
+	- Docker Hub, Cloud, and Store are the place where you can pull, or push Docker images.
+
+~ Overview of docker object
+	Images :
+		- An image is a read-only template
+		- An image is an executable package that includes everything needed to run an application ->
+		- It contains instructions for creating a Docker container
+		- An image can be based on another image with additionnal customisation
+		- To build your own image you create a dockerfile with set of instructions following a correct syntax for those type of files
+	Containers :
+		- A container is a runnable/runtime instance of an image (I.e What the image become in memory when executed)
+		- You can connect container to network
+		- You can create a new image based on the current container state
+		- When you're done with the executable/application inside this container, the container wont be deleted if non-specified, you can start it again for example
+	Services :
+		- Services allow you to scale container accross multiple Docker daemons working together as a swarm with multiple manager and worker
+		- Each machine in the swarm is now called a node, (I.e. Worker node/ Manager node)
+
+~ Part 1
+	- Just setting up and basic commands
+
+~ Part 2
+	- Dockerfile defines what goes on in the environment container, inside you also often expose port 80 wich allow http output visualisation for the outside world
+	- Once dockerfile is done, you should be in directory with dockerfile, requirment.txt and app.py for a python app
+	- Then you can build the image
+
+	- Use docker build . or docker build -t friendlyname .
+	- Then if you look at you're local docker image registry with docker image ls
+	- It should show your friendlyname image built
+	- Then to run the app you have to map your machine’s port 4000 to the container’s published port 80 using -p like so :
+	- docker run -p 4000:80 friendlyname
+	- http://localhost:4000 on a web browser to see the output of app.py or curl http://localhost:4000 in a shell
+	- docker run -d -p 4000:80 friendlyhello to run in background/detached mode
+	- docker container ls to check if its still running
+	- docker container stop with the id to stop it
+
+	- Now to test portability, try running it from somewhere else. For that you need to Share the image
+	- Create account at hub.docker.com and then docker login to connect
+	- username/repository:tag is the notation to tag an image
+	- docker tag friendlyname ywoak/get-started:part2
+	- docker image ls to see it
+	- then docker push username/repository:tag to push it
+
+	- Now on any machine : docker run -p 4000:80 ywoak/get-started:part2 and it will run the image as a container and execute itself
+
+~ Part 3
+	- A docker-compose.yml file is a YAML file that define how container behave in production
+	- It can pull an image, run numerous instance of that image so multiple containers at the same time
+	- Limiting %of CPU usage by the containers
+	- Put a restart policy in one fail to restart it, here its on-failure
+	- Instruct all the containers running to share a port
+	- Then with docker stack deploy -c docker-compose.yml nameoftheservice you created a network as instructed by the docker-compose file + the service itself
+	- if you run docker ps you can see there is numerous container working on the same port
+	- You now run a multi container machine
+
+~ Part 4
+	- A swarm is a group of machine all running docker joined into a cluster
+	- Each machine is called a node
+	- The docker command are now executed by a swarm manager wich tell wich or wich machine run the container
+	- Strategie of swarm manager are instructed in a compose file
+	- Only swarm manager node will execute the command
+	- Worker node dont have authority to tell other machine what it can and cannot it
+	- There are here solely for capacity
+
+	- Enabling swarm mode instantly make your machine a swarm manager
+	- It is done with docker swarm init
+	- The node can be either physical or virtual machine
+	- docker swarm join on other machine to make them join the swarm as worker
+
+	- With docker-machine and the VB hypervisor you can create two VM running docker (I.e docker-machine create --driver virtualbox myvm1 and same with myvm2)
+	- You can send command to VM using docker-machine ssh
+	- So to instruct myvm1 to become a swarm manager with docker-machine ssh myvm1 "docker swarm init --advertise-addr <myvm1 ip>"
+	- Always run docker swarm command with port 2377  wich is the swarm managment port and dont use port 2376 wich is the Docker daemon port
+	- docker-machine ssh myvm2 "docker swarm join \ --token <token> \ <ip>:2377" and now you have created a swarm with a cluster of 2 machine running docker, wich are both virtual
+	- Now run docker node ls on the manager to view the nodes in this swarm
+	- Docker swarm leave on each node to start over
+
+	- Instead of using ssh to talk to myvm1 you can configure your shell to speak directly through the myvm1 docker daemon using your host docker CLI
+	- docker-machine env myvm1 and then eval ...
+	- docker-machine ls again and now myvm1 should be the one active one
+	- This is good so your compose file can run "remotely" kinda
+	- To deplay the app on the swarm cluster repeat process seen in Part 3 in a swarm manager node
+	- docker stack ps <nameoftheservice> to see now container are distributed in vm1 and vm2 compared to in part 3
+	- Then you can do everything you learned in part 2 and 3 and stack deploy again
+	- eval $(docker-machine env -u) to unset DOCKER_ENV_VARIABLES in your shell
+
+~ Part 5
+	- A stack is a group of inter-related services that share dependecies running together
+	- They can be scaled together through stack
+	- Since now we have been using a stack to create our service, but it was a single service stack
+
+	- Just add another service in the compose file to add one then re run
+	- Docker stack deploy -c docker-compose.yml <name of stack>
+
+	- placement constraint can be specified in the docker-compose file to order wich node must run the program (I.e Manager or Worker).
+	- It ensure that the app will keep the same filesystem throughout its use
+	- Volume can be used to persist data. It act like a socket/SymLink between a file in the container and a file in the host
+	- So if the container is torn-down and re deployed it'll keep the data in your host filesystem where you specified it
+
+~ Part 6
+	- Full cloud, we'll see later if needed
+
+Develop with Docker
+
+~ App development overview
+	- Good dockerfile
+	- Use multistage builds
+	- Use volume to manage app data
+	- Scale your app as a swarm service
+	- Use compose file to define your stack
+
+~ App development best practices
+	- Keep image small :
+		- Appropriate base image
+		- Use multistage build
+		- Use less RUN command and use && in one RUN command from dockerfile
+		- Precise tag and do not rely on automatically-created latest tag
+	- Persist application data :
+		- Avoid storage drivers
+		- Use volumes
+		- Use secrets to store sensible data used by service
+		- Else use configs
+	- Use swarm whenever possible :
+		- swarm service over standalone container
+		- Network and volumes can be disconnected from the service and docker handle redeploying the service container in a non-disrupted way
+		- Storing secrets and config are only available for services. And services run best in a swarm
+	- Make good makefiles
+		- Will see later in dockerfile docs
+
+~ Configure networking
+	- Networking overview :
+		- They are 5 drivers you can use for core networking functionnality
+			- Bridge : The default network driver. Use for standalone container who need to communicate
+			- Host : Use for standalone container if you wanna remove networking isolation between a container and its host, and use the host network directly
+			- Overlay : Enable swarm service to communicate with each other + Connect multiple daemon docker together
+			- Macvlan : Allow you to assign a MAC adress on a container. Making it appear as a physical device on your network
+			- none : For this container disable all networking
+	- The rest of the doc is explanation + example for each type. Check if needed
+
+~ Manage application data
+	- Storage overview :
+		- By default all files created inside a container are stored on the writable container layer.
+		- So data doesnt persist at the end of the container runtime and its hard to move the data elsewhere.
+		- Docker has two options for containers to store files in the host machine, so that the data are persisted even after the container stops: volumes and bind mounts. (tmpfs mount if you're on Linux.)
+		- Volumes are created and managed by docker and isolated from the core functionnality of the host machine
+		- Volumes also support volume drivers that allows to store data on remote hosts or cloud providers for example
+
+		- Bind mounts is a file or a directory in the host machine that is mount to the container, it is referenced by its full path in the host.
+		- It is created on demand if it doesnt exist yet
+		- It relies on the host machine filesystem structure
+		- Docker CLI commands cant directly manage bind mounts compared to Volumes
+
+
+~ Dockerfile reference :
+
+	~ Best practice for writing dockerfiles :
+		- Each instruction of a dockerfile is a layer for the docker image
+		- When you run an image and generate a container you add a new layer on top of the layer stack, its called the container layer
+		- Any changes made after are written on this container layer, thats what allow to build an image based on the current container
+		- -f for build context if dockerfile and file to act on are on different file
+		- Use multi-stage build
+		- Minimize the number of layers
+		- space and \ if needed to add multiple arguments make it easier to read, for examples git install -y \arg1 \arg2 ...
+		- Leverage build cache

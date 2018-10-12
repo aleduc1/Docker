@@ -1,1 +1,7 @@
-#To-do
+docker service create \
+--name orbital-command \
+-d \
+--network overmind \
+-e RABBITMQ_DEFAULT_USER=user \
+-e RABBITMQ_DEFAULT_PASS=password \
+rabbitmq:latest

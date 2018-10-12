@@ -1,1 +1,13 @@
-#To-do
+docker run \
+-d \
+-t \
+--name Abathur \
+--mount type=bind,source="$(HOME)"/target,target=/root \
+-p 3000:3000 \
+python:2-slim
+docker exec Abathur pip install flask
+cp $HOME/hello_world.py $HOME/target
+docker exec \
+-d \
+-e FLASK_APP=/root/hello_world.py \
+Abathur flask run --host=0.0.0.0 --port=3000

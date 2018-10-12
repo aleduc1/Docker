@@ -1,1 +1,3 @@
-#To-do
+docker swarm join \
+--token $(docker swarm join-toker --quiet worker) \
+$(docker-machine ip Char):2377"

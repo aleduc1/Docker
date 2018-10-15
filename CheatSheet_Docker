@@ -192,15 +192,22 @@ Develop with Docker
 		- It relies on the host machine filesystem structure
 		- Docker CLI commands cant directly manage bind mounts compared to Volumes
 
-
 ~ Dockerfile reference :
+	- A dockerfile is a text document that contain all the command a user could call on the command line to assemble an image
+	- 
+	-
+	-
+	-
+	-
+	-
+	-
 
-	~ Best practice for writing dockerfiles :
-		- Each instruction of a dockerfile is a layer for the docker image
-		- When you run an image and generate a container you add a new layer on top of the layer stack, its called the container layer
-		- Any changes made after are written on this container layer, thats what allow to build an image based on the current container
-		- -f for build context if dockerfile and file to act on are on different file
-		- Use multi-stage build
-		- Minimize the number of layers
-		- space and \ if needed to add multiple arguments make it easier to read, for examples git install -y \arg1 \arg2 ...
-		- Leverage build cache
+~ Best practice for writing dockerfiles :
+	- Each instruction of a dockerfile is a layer for the docker image
+	- When you run an image and generate a container you add a new layer on top of the layer stack, its called the container layer
+	- Any changes made after are written on this container layer, thats what allow to build an image based on the current container
+	- -f for build context if dockerfile and file to act on are on different file
+	- Use multi-stage build
+	- Minimize the number of layers
+	- space and \ if needed to add multiple arguments make it easier to read, for examples git install -y \arg1 \arg2 ...
+	- Leverage build cache

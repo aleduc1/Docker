@@ -2,7 +2,7 @@ docker run \
 -d \
 -t \
 --name Abathur \
---mount type=bind,source="$(HOME)"/target,target=/root \
+--mount type=bind,source=$HOME/target,target=/root \
 -p 3000:3000 \
 python:2-slim
 docker exec Abathur pip install flask

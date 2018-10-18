@@ -1,3 +1,3 @@
-apt update
-apt updrage -y
-apt install git gcc -y
+apt-get update
+apt-get updrage -y
+apt-get install -y git gcc

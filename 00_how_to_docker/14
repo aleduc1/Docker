@@ -3,4 +3,4 @@ docker run \
 -p 8080:80 \
 --name lair \
 --link spawning-pool:mysql \
-wordpress:latest
+wordpress

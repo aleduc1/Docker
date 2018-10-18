@@ -2,11 +2,11 @@ docker run \
 -d \
 -t \
 --name Abathur \
---mount type=bind,source=$HOME/target,target=/root \
+--mount type=bind,source=$HOME/booo,target=/root \
 -p 3000:3000 \
 python:2-slim
 docker exec Abathur pip install flask
-cp $HOME/hello_world.py $HOME/target
+cp $HOME/hello_world.py $HOME/booo
 docker exec \
 -d \
 -e FLASK_APP=/root/hello_world.py \

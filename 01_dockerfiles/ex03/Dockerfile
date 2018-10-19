@@ -10,6 +10,7 @@ RUN DEBIAN_FRONTEND=noninteractive \
     apt-get upgrade -y && \
     apt-get install \
     -y \
+	curl \
     apt-transport-https \
     ca-certificates \
     openssh-server \
@@ -17,4 +18,10 @@ RUN DEBIAN_FRONTEND=noninteractive \
 # small fix for SSH (that's harmless everywhere else)
 RUN sed -ri 's/^session\s+required\s+pam_loginuid.so$/session optional pam_loginuid.so/' /etc/pam.d/sshd
 
+# add gitlab repository
+RUN curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/script.deb.sh | bash
 
+# install gitlab
+RUN apt-get install \
+	-y \
+	gitlab-ce

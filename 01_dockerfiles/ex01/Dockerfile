@@ -9,6 +9,7 @@ RUN DEBIAN_FRONTEND=noninteractive \
     apt-get update -y && \
     apt-get upgrade -y && \
     apt-get install -y \
+	ca-certificates \
     bzip2 \
     && apt-get autoremove -y
 

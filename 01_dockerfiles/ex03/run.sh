@@ -17,4 +17,4 @@ curl -sS https://packages.gitlab.com/install/repositories/gitlab/gitlab-ce/scrip
 apt-get install -y gitlab-ce
 
 /opt/gitlab/embedded/bin/runsvdir-start &
-EXTERNAL_URLl='localhost' && gitlab-ctl reconfigure
+EXTERNAL_URL='localhost' && gitlab-ctl reconfigure

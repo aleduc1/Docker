@@ -1,1 +1,1 @@
-docker rm -f $(docker ps --all --format "{{.Names}}")
+docker rm -f $(docker ps -a -q)
